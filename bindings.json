@@ -1,0 +1,19 @@
+{
+  "Button A": "enter",
+  "Button B": "delete",
+  "Button X": "option",
+  "Button Y": "escape",
+  "Left Shoulder": null,
+  "Right Shoulder": null,
+  "Left Trigger": "mouse:left",
+  "Right Trigger": "mouse:right",
+  "Direction Pad Up": null,
+  "Direction Pad Down": null,
+  "Direction Pad Left": null,
+  "Direction Pad Right": null,
+  "Left Thumbstick Button": null,
+  "Right Thumbstick Button": null,
+  "Button Menu": null,
+  "Button Options": null,
+  "Button Home": null
+}
