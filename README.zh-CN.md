@@ -2,6 +2,8 @@
 
 手柄按键 → Mac 键盘按键。绑定表预先覆盖全部 **17 个物理按键**，未绑定的写 `nil`，后续加需求只改一张表。
 
+开源仓库：<https://github.com/wujiang1999/vibe-coding-with-a-gamepad>（英文 README 与设计说明在 `README.md` / `docs/DESIGN.md`）。
+
 ## 当前绑定
 
 | 手柄 | 键盘 | 状态 |
@@ -15,7 +17,6 @@
 | LB / RB | — | 未绑定 |
 | **左摇杆** | **指针移动**（两轴，死区 + 加速曲线） | ✅ 已启用 |
 | **右摇杆** | **滚动**（上下 + 左右两轴） | ✅ 已启用 |
-| LT / RT（Left/Right Trigger，模拟量过 0.5 算按下） | — | 未绑定 |
 | 十字键 上下左右 | — | 未绑定 |
 | 左/右摇杆按下 | — | 未绑定 |
 | Menu / Options / Home | — | 未绑定 |
@@ -58,7 +59,7 @@ tail -f ~/Library/Logs/gamepad-button-keys.log                 # 观察按键
 左摇杆推杆方向 → 指针位移方向；推得越满越快，松手立即停（不是匀速漂移）。右摇杆同理，但输出的是滚动事件，
 上下推 = 垂直滚动，左右推 = 水平滚动。指针坐标用所有显示器的并集裁剪，不会移出屏幕。
 
-手感参数集中在 `main.swift` 的 `PointerTuning`：
+手感参数在同目录 `pointer.json`（启动时缺失会自动生成），改完 `kill -HUP $(pgrep -f 'button-keys/button-keys')` 生效，**不需要重编译**：
 
 | 参数 | 当前值 | 作用 |
 |---|---|---|
@@ -69,9 +70,9 @@ tail -f ~/Library/Logs/gamepad-button-keys.log                 # 观察按键
 
 要点：
 
-- 指针移动发的是 `mouseMoved`；按住 LB 时改发 `leftMouseDragged`，所以"按住 LB + 推左摇杆"就是拖动。
+- 指针移动发的是 `mouseMoved`；按住 LT 时改发 `leftMouseDragged`，所以"按住 LT + 推左摇杆"就是拖动。
 - 滚动用 `scrollWheelEvent2Source(units: .pixel)`，单位是像素，触控板级别的手感。
-- 改手感需要重新编译 → 会再次触发下面的授权失效，所以一次调好再授权。
+- 手感全部走 `pointer.json` + SIGHUP，不重编译就不会触发授权失效。
 
 ## 加一个绑定
 
@@ -99,3 +100,10 @@ tail -f ~/Library/Logs/gamepad-button-keys.log                 # 观察按键
 - 设备侧：`BEITONG A1N3 XINPUT GAMEPAD`（Xbox 档案，34 元素）；B/X/Y 的 0/1 边沿事件此前已实测。
 - 00:27–00:34 launchd 实例日志里观测到真实按键链路：`Button A → enter 按下/松开`、`Button X → option 按下/松开`。
 - 00:41 该实例重启后日志重新出现「缺少「辅助功能」权限」——对应 00:30 的重编译。处置见上文：面板里重新勾选 `button-keys`，再 `launchctl kickstart -k`。
+- 08:19 指针实测（100ms 采样光标坐标）：向右推住 0.74s 位移 +906px（1219 pt/s），向上推住 0.52s 位移 -689px（1317 pt/s），
+  另一轴恒定为 0，到屏幕边缘正确夹住；当时峰值设定 1400 pt/s。
+- 08:21 / 08:26 鼠标键实测：LT 记录 4 次左键按下/松开，RT 记录 5 次右键按下/松开（右键菜单可见）。
+- 滚动实测：右摇杆上下/左右均触发 `scrollWheelEvent`，目标窗口滚动正常。
+- 手感复查后峰值调整为 `maxSpeed 1600` / `maxScroll 1400`，曲线参数未变。
+- 已知坑：新起的进程调用 `GCController.controllers()` 可能拿不到已连接的手柄（探针实测为空），
+  只有长期运行的守护进程能持续收到事件；因此功能都做在服务的 tick 循环里，不另起进程。
