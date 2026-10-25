@@ -80,7 +80,7 @@ Element name → action. `null` means unbound.
 
 - Action is a key name from the built-in `keyCodes` table (`enter`, `escape`, `a`…`z`, `f1`…`f12`, `up`/`down`/`left`/`right`, `option`, `command`, `shift`, `control`, …).
 - Actions starting with `mouse:` are mouse buttons: `mouse:left`, `mouse:right`, `mouse:middle`.
-- Modifier keys register their `CGEventFlags`, so holding `option` on the pad makes subsequent presses `Option+whatever`.
+- Modifier keys register their `CGEventFlags`, so holding `option` on the pad makes subsequent presses `Option+whatever`. A modifier's own flag is dropped *before* its key-up is posted — an event's `flags` field is the state the receiver sees, so a key-up still carrying its own flag looks like "still held" and the next press of the same button is ignored as a no-change.
 
 ### `pointer.json`
 

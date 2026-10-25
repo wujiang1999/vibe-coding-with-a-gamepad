@@ -360,8 +360,11 @@ func apply(_ name: String, pressed: Bool) -> Bool {
         post(action.code, down: true)
         log("\(name) → \(action.keyName) 按下")
     } else {
-        post(action.code, down: false)
+        // 必须先摘掉自身的 flag 再发 keyUp：事件携带的 flags 就是接收方看到的状态，
+        // 若 keyUp 仍带着自身 flag，接收方会认为这个修饰键一直按着，
+        // 同一个键再按一次就没有状态变化，表现成「第二次按没反应」。
         currentFlags.remove(action.flag)
+        post(action.code, down: false)
         log("\(name) → \(action.keyName) 松开")
     }
     return true
@@ -417,7 +420,7 @@ final class Bridge: NSObject, NSApplicationDelegate {
 
         let labels = bindingLabels()
         let bound = labels.keys.sorted().map { "\($0)→\(labels[$0]!)" }
-        log("运行中 \(bindings.count) 个物理键，已绑定 \(labels.count) 个：" + bound.joined(separator: "、"))
+        log("运行中 \(buildVersion)：\(bindings.count) 个物理键，已绑定 \(labels.count) 个：" + bound.joined(separator: "、"))
         let unbound = bindings.keys.filter { labels[$0] == nil }.sorted()
         log("未绑定：" + unbound.joined(separator: "、"))
         log("摇杆：左=指针移动（死区 \(pointer.deadzone)，峰值 \(Int(pointer.maxSpeed)) pt/s），右=滚动（死区 \(pointer.scrollDeadzone)，峰值 \(Int(pointer.maxScroll)) px/s）")
@@ -541,7 +544,7 @@ final class Bridge: NSObject, NSApplicationDelegate {
 let arguments = CommandLine.arguments
 setvbuf(stdout, nil, _IOLBF, 0)   // 命令行模式下日志也要立刻可见
 
-let buildVersion = "0.2.0"
+let buildVersion = "0.2.1"
 if arguments.contains("--version") {
     print("button-keys \(buildVersion)")
     exit(0)

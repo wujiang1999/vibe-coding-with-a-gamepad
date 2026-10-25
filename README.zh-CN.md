@@ -114,3 +114,11 @@ tail -f ~/Library/Logs/gamepad-button-keys.log                 # 观察按键
 - 手感复查后峰值调整为 `maxSpeed 1600` / `maxScroll 1400`，曲线参数未变。
 - 已知坑：新起的进程调用 `GCController.controllers()` 可能拿不到已连接的手柄（探针实测为空），
   只有长期运行的守护进程能持续收到事件；因此功能都做在服务的 tick 循环里，不另起进程。
+- 2026-10-25 22:00–22:04 修复「修饰键连按第二次无效」：`apply()` 松开时原来先发 keyUp（flags 里还带着自身修饰）、
+  再摘 flag，接收方于是认为 Option 一直按着，同一个键再按没有状态变化 → 表现为没反应，按别的键把 flags 冲掉后才恢复。
+  现在先摘 flag 再发 keyUp。复现与验收都用 `experiments/flags-probe.swift`（自建窗口收 `flagsChanged`/`keyDown`，
+  再驱动真实二进制的 `--tap`）：修复前 X、X 记录成 4 次 `option=true`，修复后严格 true/false 交替；
+  `compose` 模式确认「按住 X 再按 A」仍是 `keyDown key=36 option=true`。
+  命令：`swiftc -O -o experiments/flags-probe experiments/flags-probe.swift -framework Cocoa -framework ApplicationServices`
+  → `experiments/flags-probe tap "$PWD/button-keys" /tmp/tap.log`（会弹一个临时窗口抢焦点，十几秒后自动退出）。
+- 判据提醒：`apply()` 每次按下/松开都会写日志，日志里有记录而界面无反应 ⇒ 问题在事件 flags，不在手柄边沿检测。

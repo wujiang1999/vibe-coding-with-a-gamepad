@@ -43,6 +43,7 @@ Two details matter:
 
 - **Absolute positioning, not deltas.** `CGEvent` mouse moves take a screen coordinate, so the tool keeps no delta state and cannot accumulate drift. It reads the live cursor position each tick (`CGEvent(source: nil)?.location`), adds this frame's displacement, and clamps to the union of all active displays (`CGGetActiveDisplayList` + `CGDisplayBounds`).
 - **Modifier flags are tracked, not posted.** A modifier element on the pad adds its `CGEventFlags` to a running mask and every subsequent key event carries it. This is what makes "hold X, tap A" produce `Option+Enter`. The mask is cleared on release, disconnect, and shutdown.
+- **A modifier's own flag is removed before its key-up is posted.** The `flags` field on a posted event *is* the modifier state the receiver sees, so a key-up that still carries its own flag reads as "still held". The receiver then sees no state change on the next press of the same button and ignores it — the classic "second press does nothing until another key is pressed" symptom. Verified with a listening `NSTextView`/`NSView` probe (`experiments/flags-probe.swift`): the buggy order yields `flagsChanged option=true` for both down and up, the fixed order alternates `true`/`false`.
 
 ## Pointer feel
 
