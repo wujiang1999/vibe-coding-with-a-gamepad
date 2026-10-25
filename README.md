@@ -42,6 +42,9 @@ Default mapping:
 ## Build and run
 
 ```bash
+# One-time: create a self-signed code-signing certificate named "ButtonKeys Local"
+# (Keychain Access → Certificate Assistant → Create a Certificate → Code Signing),
+# or pass your own with SIGN_IDENTITY=... ./build.sh
 ./build.sh
 ./button-keys            # run in the foreground, Ctrl+C to quit
 ./button-keys --verbose  # also log unbound buttons, useful while tuning
@@ -135,7 +138,7 @@ Under launchd the **binary itself** needs Accessibility permission, not the term
 
 | Symptom | Cause / fix |
 |---|---|
-| Log says missing Accessibility after a rebuild | Recompiling changes the binary signature; the TCC grant is invalidated. Remove and re-add the binary in the Accessibility list, then `launchctl kickstart -k`. |
+| Log says missing Accessibility after a rebuild | With an ad-hoc signature the TCC grant is pinned to the binary's cdhash, so every rebuild invalidates it. Sign with a stable identity instead (`build.sh` does this automatically when `ButtonKeys Local` exists); the grant then survives rebuilds. Otherwise re-add the binary in the Accessibility list and `launchctl kickstart -k`. |
 | Buttons do nothing, no log lines | Element names differ for your pad. Run with `--verbose` and compare against `controller.physicalInputProfile.elements`. |
 | Pointer drifts on its own | Raise `deadzone` in `pointer.json`; cheap sticks rest above 0.1. |
 | A modifier is stuck | Send `SIGTERM` — the signal handler releases every held element. |

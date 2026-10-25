@@ -101,9 +101,10 @@ Posting events requires Accessibility. The grant is tied to the *process identit
 
 - Running from a terminal → grant the terminal.
 - Running under launchd → grant the binary itself.
-- **Rebuilding the binary invalidates the grant** (signature/cdhash changed). This is why runtime configuration was moved to JSON + `SIGHUP`: tune without recompiling, and never lose the permission mid-session.
+- With an **ad-hoc** signature the designated requirement is just `cdhash H"…"`, so every rebuild produces a new identity and the grant is invalidated.
+- With a **stable signing identity** the requirement becomes `identifier "button-keys" and certificate leaf = H"…"` — the cdhash is no longer part of it, so the grant survives rebuilds. `build.sh` signs with `SIGN_IDENTITY` (default `ButtonKeys Local`) when that identity exists, and falls back to ad-hoc with a warning otherwise.
 
-A stable Developer ID signature with a fixed designated requirement would survive rebuilds; ad-hoc signing does not.
+Runtime configuration still lives in JSON + `SIGHUP`, because rebuilding is slower than editing a file and because not every environment has a signing identity. A Developer ID certificate (paid) is the variant that also works for distribution and survives machine changes; a local self-signed certificate is tied to this keychain.
 
 ## Verification
 

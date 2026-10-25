@@ -26,7 +26,9 @@
 ## 构建与运行
 
 ```bash
-./build.sh            # 生成 ./button-keys
+# 首次：钥匙串访问 → 证书助理 → 创建证书 → 代码签名，名称 "ButtonKeys Local"
+# （或用 SIGN_IDENTITY=你的证书名 ./build.sh）
+./build.sh            # 生成并签名 ./button-keys
 ./button-keys         # 常驻，Ctrl+C 退出（退出前会释放按键）
 ./button-keys --verbose   # 未绑定的按键也打印，调表时用
 ./button-keys --selftest  # 走同一条发送路径敲一次 Option+Enter，验证权限
@@ -51,8 +53,12 @@ launchctl bootout gui/$(id -u)/art.wujiang.gamepad-button-keys       # 停止并
 tail -f ~/Library/Logs/gamepad-button-keys.log                 # 观察按键
 ```
 
-注意：**重新 `./build.sh` 后二进制签名变化，辅助功能授权可能失效**；若日志重新出现「缺少「辅助功能」权限」，
-到面板里把 `button-keys` 删掉重新添加，或每次开发时改为在终端里跑（终端已授权即可）。
+注意签名与授权的关系：
+
+- ad-hoc 签名时，TCC 的指定要求就是 `cdhash`，**每次重编译都会失效**。
+- 用固定代码签名证书后，指定要求变成 `identifier + certificate leaf`，**重编译不再丢授权**。
+  `build.sh` 会自动用 `SIGN_IDENTITY`（默认 `ButtonKeys Local`）签名；证书不存在时退回 ad-hoc 并打印警告。
+- 若日志重新出现「缺少「辅助功能」权限」，到面板里把 `button-keys` 删掉重新添加，或改为在终端里跑（终端已授权即可）。
 
 ## 摇杆当鼠标
 
