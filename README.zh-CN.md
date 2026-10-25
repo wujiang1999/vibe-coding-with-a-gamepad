@@ -64,7 +64,7 @@ tail -f ~/Library/Logs/gamepad-button-keys.log                 # 观察按键
 |---|---|---|
 | `deadzone` / `scrollDeadzone` | 0.15 / 0.18 | 死区，抵消摇杆漂移 |
 | `exponent` / `scrollExponent` | 1.7 / 1.5 | 加速曲线，越大越"慢起步" |
-| `maxSpeed` / `maxScroll` | 1400 pt/s / 1200 px/s | 推满时的峰值速度 |
+| `maxSpeed` / `maxScroll` | 1600 pt/s / 1400 px/s | 推满时的峰值速度 |
 | `maxStep` | 0.05 s | 单帧步长上限，卡顿后不会瞬移 |
 
 要点：

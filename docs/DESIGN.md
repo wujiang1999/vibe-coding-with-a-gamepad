@@ -61,7 +61,7 @@ v'  = maxSpeed * m^exponent                  // speed curve
 - **`dt` from `CFAbsoluteTimeGetCurrent()`**, clamped by `maxStep`: after a stall (debugger, sleep, compaction) the pointer moves one bounded step instead of teleporting across the screen.
 - **Sign conventions**: gamepad Y is positive-up, CG screen Y is positive-down — the Y delta is negated. Scroll follows the same rule (`wheel1` positive = content up).
 
-Measured on the reference device: 1219 px/s and 1317 px/s on sustained full-deflection pushes against a 1400 px/s ceiling, with the other axis unchanged and clean clamping at the screen edges.
+Measured on the reference device: 1219 px/s and 1317 px/s on sustained full-deflection pushes against the original 1400 px/s ceiling, with the other axis unchanged and clean clamping at the screen edges. The ceiling was later raised to 1600 px/s after tuning.
 
 ## Mapping model
 

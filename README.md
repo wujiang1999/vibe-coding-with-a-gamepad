@@ -84,10 +84,10 @@ Element name → action. `null` means unbound.
 {
   "deadzone": 0.15,
   "exponent": 1.7,
-  "maxSpeed": 1400,
+  "maxSpeed": 1600,
   "scrollDeadzone": 0.18,
   "scrollExponent": 1.5,
-  "maxScroll": 1200,
+  "maxScroll": 1400,
   "maxStep": 0.05
 }
 ```
