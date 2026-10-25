@@ -541,6 +541,12 @@ final class Bridge: NSObject, NSApplicationDelegate {
 let arguments = CommandLine.arguments
 setvbuf(stdout, nil, _IOLBF, 0)   // 命令行模式下日志也要立刻可见
 
+let buildVersion = "0.2.0"
+if arguments.contains("--version") {
+    print("button-keys \(buildVersion)")
+    exit(0)
+}
+
 if arguments.contains("--selftest") {
     // 走与真实按键相同的 apply() 路径：先按住 X(Option)，再敲 A(Enter)，验证修饰键确实生效
     verbose = true

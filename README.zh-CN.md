@@ -32,6 +32,7 @@
 ./button-keys         # 常驻，Ctrl+C 退出（退出前会释放按键）
 ./button-keys --verbose   # 未绑定的按键也打印，调表时用
 ./button-keys --selftest  # 走同一条发送路径敲一次 Option+Enter，验证权限
+./button-keys --version   # 打印构建版本
 ```
 
 首次运行需要「辅助功能」权限：系统设置 → 隐私与安全性 → 辅助功能，勾选运行它的终端。

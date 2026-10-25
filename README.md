@@ -49,6 +49,7 @@ Default mapping:
 ./button-keys            # run in the foreground, Ctrl+C to quit
 ./button-keys --verbose  # also log unbound buttons, useful while tuning
 ./button-keys --selftest # fire one Option+Enter through the real code path
+./button-keys --version  # print the build version
 ./button-keys --tap "Button B"   # fire a single binding
 ```
 
