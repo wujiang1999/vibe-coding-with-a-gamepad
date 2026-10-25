@@ -335,6 +335,14 @@ func buildTable() {
     }
 }
 
+/// 当前生效的绑定摘要：元素 → 动作名（键盘键名或 mouse:*）。启动与重载日志共用，避免两处统计口径不一致。
+func bindingLabels() -> [String: String] {
+    let mouseLabels = mouseBindings.mapValues {
+        $0 == .left ? "mouse:left" : ($0 == .right ? "mouse:right" : "mouse:middle")
+    }
+    return compiled.mapValues(\.keyName).merging(mouseLabels) { key, _ in key }
+}
+
 @discardableResult
 func apply(_ name: String, pressed: Bool) -> Bool {
     if let button = mouseBindings[name] {
@@ -407,8 +415,7 @@ final class Bridge: NSObject, NSApplicationDelegate {
             self?.tick()
         }
 
-        let mouseLabels = mouseBindings.mapValues { $0 == .left ? "mouse:left" : ($0 == .right ? "mouse:right" : "mouse:middle") }
-        let labels = compiled.mapValues(\.keyName).merging(mouseLabels) { key, _ in key }
+        let labels = bindingLabels()
         let bound = labels.keys.sorted().map { "\($0)→\(labels[$0]!)" }
         log("运行中 \(bindings.count) 个物理键，已绑定 \(labels.count) 个：" + bound.joined(separator: "、"))
         let unbound = bindings.keys.filter { labels[$0] == nil }.sorted()
@@ -435,8 +442,10 @@ final class Bridge: NSObject, NSApplicationDelegate {
             loadBindings()
             loadPointerConfig()
             buildTable()
-            log("已按 SIGHUP 重载绑定，当前 \(compiled.count) 个："
-                + compiled.keys.sorted().map { "\($0)→\(compiled[$0]!.keyName)" }.joined(separator: "、"))
+            let labels = bindingLabels()
+            log("已按 SIGHUP 重载绑定，当前 \(labels.count) 个："
+                + labels.keys.sorted().map { "\($0)→\(labels[$0]!)" }.joined(separator: "、"))
+            log("手感：死区 \(pointer.deadzone)/\(pointer.scrollDeadzone)，峰值 \(Int(pointer.maxSpeed)) pt/s / \(Int(pointer.maxScroll)) px/s")
         }
         reload.resume()
         signalSources.append(reload)
